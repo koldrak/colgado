@@ -15,7 +15,7 @@ import java.io.File;
 import javax.swing.JFileChooser;
 
 public class AhorcadoGrafico extends JFrame {
-	private List<String> palabrasDisponibles = new ArrayList<>();
+    private List<String> palabrasDisponibles = new ArrayList<>();
     private String palabraSecreta;
     private char[] palabraAdivinada;
     private int intentosRestantes = 6;
@@ -25,6 +25,8 @@ public class AhorcadoGrafico extends JFrame {
     private JPanel panelLetrasUsadas;  // Panel donde se muestran las letras usadas
     private JTextField txtLetra;
     private JPanel panelDibujo;
+    private int palabrasAcertadas = 0;
+    private JLabel lblContadorPalabras;
 
     public AhorcadoGrafico() {
         setTitle("Juego del Ahorcado");
@@ -32,10 +34,10 @@ public class AhorcadoGrafico extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         cargarPalabrasDesdeArchivo("palabras.txt");
 
-        // Seleccionar palabra aleatoria
+        // Seleccionar palabra aleatoria sin repetir
         Random rand = new Random();
         if (!palabrasDisponibles.isEmpty()) {
-            palabraSecreta = palabrasDisponibles.get(rand.nextInt(palabrasDisponibles.size()));
+            palabraSecreta = palabrasDisponibles.remove(rand.nextInt(palabrasDisponibles.size()));
         } else {
             palabraSecreta = "ERROR"; // Manejo de error si no hay palabras disponibles
         }
@@ -139,6 +141,13 @@ public class AhorcadoGrafico extends JFrame {
         // 📌 Agregar panelEntrada a la segunda fila
         panelLetrasUsadas.add(panelEntrada, gbc2);
 
+        // 📌 Agregar contador de palabras acertadas
+        gbc2.gridy = 2;
+        lblContadorPalabras = new JLabel("Palabras acertadas: " + palabrasAcertadas);
+        lblContadorPalabras.setFont(new Font("Arial", Font.PLAIN, 24));
+        lblContadorPalabras.setForeground(Color.WHITE);
+        panelLetrasUsadas.add(lblContadorPalabras, gbc2);
+
         // 📌 4️⃣ Agregar los paneles al GridBagLayout en el orden correcto
         // 📌 Panel del gráfico del ahorcado (IZQUIERDA)
         gbc.gridx = 0;
@@ -235,11 +244,21 @@ public class AhorcadoGrafico extends JFrame {
         lblPalabra.setText(getPalabraAdivinada());
 
         if (String.valueOf(palabraAdivinada).equals(palabraSecreta)) {
+            palabrasAcertadas++;
+            lblContadorPalabras.setText("Palabras acertadas: " + palabrasAcertadas);
+
+            if (palabrasDisponibles.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "¡Correcto! La palabra era: " + palabraSecreta +
+                                "\nNo hay más palabras disponibles.\nPalabras acertadas: " + palabrasAcertadas);
+                System.exit(0);
+            }
+
             JOptionPane.showMessageDialog(this, "¡Correcto! La palabra era: " + palabraSecreta + "\n¡Vamos por otra!");
 
             // Reiniciar para una nueva palabra
             Random rand = new Random();
-            palabraSecreta = palabrasDisponibles.get(rand.nextInt(palabrasDisponibles.size()));
+            palabraSecreta = palabrasDisponibles.remove(rand.nextInt(palabrasDisponibles.size()));
             palabraAdivinada = new char[palabraSecreta.length()];
             for (int i = 0; i < palabraAdivinada.length; i++) {
                 palabraAdivinada[i] = '_';
@@ -355,7 +374,8 @@ public class AhorcadoGrafico extends JFrame {
 
         if (opcion == JOptionPane.YES_OPTION) {
             // Palabras por defecto
-            palabrasDisponibles = Arrays.asList("JAVA", "PROGRAMACION", "COMPUTADORA", "ALGORITMO", "CODIGO");
+            palabrasDisponibles = new ArrayList<>(Arrays.asList(
+                    "JAVA", "PROGRAMACION", "COMPUTADORA", "ALGORITMO", "CODIGO"));
             return;
         }
 
@@ -376,7 +396,8 @@ public class AhorcadoGrafico extends JFrame {
                         "No se seleccionó ningún archivo. Se usarán palabras por defecto.",
                         "Aviso",
                         JOptionPane.INFORMATION_MESSAGE);
-                palabrasDisponibles = Arrays.asList("JAVA", "PROGRAMACION", "COMPUTADORA", "ALGORITMO", "CODIGO");
+                palabrasDisponibles = new ArrayList<>(Arrays.asList(
+                        "JAVA", "PROGRAMACION", "COMPUTADORA", "ALGORITMO", "CODIGO"));
                 return;
             }
         }
@@ -393,19 +414,18 @@ public class AhorcadoGrafico extends JFrame {
             JOptionPane.showMessageDialog(this,
                     "Error al leer el archivo seleccionado. Se usarán palabras por defecto.",
                     "Error", JOptionPane.ERROR_MESSAGE);
-            palabrasDisponibles = Arrays.asList(
-        		    "MONTAÑA", "CIELO", "RÍO", "COMPUTADORA", "PELOTA",
-        		    "SOL", "LLUVIA", "ESPEJO", "CAMINATA", "AVENTURA",
-        		    "BICICLETA", "PAPEL", "LÁPIZ", "BOSQUE", "PUENTE",
-        		    "RELOJ", "LIBRO", "CIUDAD", "MUSEO", "CAFÉ",
-        		    "TÉ", "AVIÓN", "TREN", "COCHE", "PLAYA",
-        		    "OCÉANO", "UNIVERSO", "PLANETA", "ESTRELLA", "LUZ",
-        		    "SOMBRA", "SONRISA", "SILENCIO", "DIBUJO", "MÚSICA",
-        		    "BAILE", "PELÍCULA", "FOTOGRAFÍA", "COCINA", "JARDÍN",
-        		    "AMISTAD", "FAMILIA", "TRABAJO", "CREATIVIDAD", "PACIENCIA",
-        		    "ÉXITO", "APRENDIZAJE", "DESCANSO", "DIVERSIÓN", "VIAJE",
-        		    "NATURALEZA"
-        		);
+            palabrasDisponibles = new ArrayList<>(Arrays.asList(
+                    "MONTAÑA", "CIELO", "RÍO", "COMPUTADORA", "PELOTA",
+                    "SOL", "LLUVIA", "ESPEJO", "CAMINATA", "AVENTURA",
+                    "BICICLETA", "PAPEL", "LÁPIZ", "BOSQUE", "PUENTE",
+                    "RELOJ", "LIBRO", "CIUDAD", "MUSEO", "CAFÉ",
+                    "TÉ", "AVIÓN", "TREN", "COCHE", "PLAYA",
+                    "OCÉANO", "UNIVERSO", "PLANETA", "ESTRELLA", "LUZ",
+                    "SOMBRA", "SONRISA", "SILENCIO", "DIBUJO", "MÚSICA",
+                    "BAILE", "PELÍCULA", "FOTOGRAFÍA", "COCINA", "JARDÍN",
+                    "AMISTAD", "FAMILIA", "TRABAJO", "CREATIVIDAD", "PACIENCIA",
+                    "ÉXITO", "APRENDIZAJE", "DESCANSO", "DIVERSIÓN", "VIAJE",
+                    "NATURALEZA"));
         }
     }
 }
