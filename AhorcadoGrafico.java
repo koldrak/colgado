@@ -70,31 +70,12 @@ public class AhorcadoGrafico extends JFrame {
         panelPalabra.setBackground(new Color(20, 100, 50));
         panelPalabra.setLayout(new GridBagLayout());
 
-        // 📌 Limitar el tamaño máximo del panel (máximo 50% de la pantalla)
-        panelPalabra.setPreferredSize(new Dimension(getWidth() / 2, getHeight() / 4));
-        panelPalabra.setMaximumSize(new Dimension(getWidth() / 2, getHeight() / 4));
-
         lblPalabra = new JLabel(getPalabraAdivinada());
         lblPalabra.setForeground(Color.WHITE);
+        lblPalabra.setHorizontalAlignment(SwingConstants.CENTER);
         panelPalabra.add(lblPalabra);
 
         // 📌 Ajustar tamaño de fuente al redimensionar
-        panelPalabra.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentResized(java.awt.event.ComponentEvent evt) {
-                ajustarTamanioFuente(lblPalabra, panelPalabra);
-            }
-        });
-
-        // 📌 Agregar el panel con restricciones para que no crezca demasiado
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.gridheight = 1;
-        gbc.weightx = 1;
-        gbc.weighty = 0; // Evita que se expanda más allá de su límite
-        add(panelPalabra, gbc);
-
-
-        // Ajustar tamaño de fuente al redimensionar
         panelPalabra.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
                 ajustarTamanioFuente(lblPalabra, panelPalabra);
@@ -162,8 +143,9 @@ public class AhorcadoGrafico extends JFrame {
         gbc.gridy = 0;
         gbc.gridheight = 1;
         gbc.weightx = 1;
-        gbc.weighty = 1; // Reduce su espacio vertical
+        gbc.weighty = 0; // Mantener altura fija
         add(panelPalabra, gbc);
+        ajustarTamanioFuente(lblPalabra, panelPalabra);
 
         // 📌 Panel de letras usadas (ABAJO DERECHA)
         gbc.gridx = 1;
@@ -189,18 +171,26 @@ public class AhorcadoGrafico extends JFrame {
     private void ajustarTamanioFuente(JLabel label, JPanel panel) {
         int panelWidth = panel.getWidth();
         int panelHeight = panel.getHeight();
-        
-        if (panelWidth == 0 || panelHeight == 0) return; // Evitar cálculos innecesarios
 
-        Font font = new Font("Arial", Font.BOLD, panelHeight / 2); // Tamaño base de la fuente
-        label.setFont(font);
+        if (panelWidth <= 0 || panelHeight <= 0) return; // Evitar cálculos innecesarios
 
+        int fontSize = panelHeight / 2;
+        Font font = new Font("Arial", Font.BOLD, fontSize);
         FontMetrics fm = panel.getFontMetrics(font);
         int textWidth = fm.stringWidth(label.getText());
 
+        // Aumentar tamaño de fuente mientras el texto sea más estrecho que el panel
+        while (textWidth < panelWidth - 20 && fontSize < panelHeight) {
+            fontSize++;
+            font = font.deriveFont((float) fontSize);
+            fm = panel.getFontMetrics(font);
+            textWidth = fm.stringWidth(label.getText());
+        }
+
         // Reducir tamaño de fuente si el texto es más ancho que el panel
-        while (textWidth > panelWidth - 20) { // 20 de margen
-            font = font.deriveFont((float) font.getSize() - 1);
+        while (textWidth > panelWidth - 20 && fontSize > 10) {
+            fontSize--;
+            font = font.deriveFont((float) fontSize);
             fm = panel.getFontMetrics(font);
             textWidth = fm.stringWidth(label.getText());
         }
@@ -242,6 +232,7 @@ public class AhorcadoGrafico extends JFrame {
         // Actualizar las etiquetas
         lblLetras.setText("Letras usadas: " + letrasIngresadas.toString());
         lblPalabra.setText(getPalabraAdivinada());
+        ajustarTamanioFuente(lblPalabra, panelPalabra);
 
         if (String.valueOf(palabraAdivinada).equals(palabraSecreta)) {
             palabrasAcertadas++;
@@ -269,6 +260,7 @@ public class AhorcadoGrafico extends JFrame {
             // Actualizar interfaz
             lblLetras.setText("Letras usadas: " + letrasIngresadas.toString());
             lblPalabra.setText(getPalabraAdivinada());
+            ajustarTamanioFuente(lblPalabra, panelPalabra);
             panelDibujo.repaint();
             return;
         }
