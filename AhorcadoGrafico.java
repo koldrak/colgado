@@ -51,8 +51,6 @@ public class AhorcadoGrafico extends JFrame {
 
         // Configurar el layout principal
         setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.BOTH;
 
         // 📌 1️⃣ Inicializar el panel del gráfico del ahorcado
         panelDibujo = new JPanel() {
@@ -130,30 +128,34 @@ public class AhorcadoGrafico extends JFrame {
         panelLetrasUsadas.add(lblContadorPalabras, gbc2);
 
         // 📌 4️⃣ Agregar los paneles al GridBagLayout en el orden correcto
-        // 📌 Panel del gráfico del ahorcado (IZQUIERDA)
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridheight = 2; // Ocupa dos filas completas
-        gbc.weightx = 2; // Más espacio horizontal
-        gbc.weighty = 3; // Más espacio vertical para evitar que se aplaste
-        add(panelDibujo, gbc);
-
-        // 📌 Panel de la palabra a adivinar (ARRIBA DERECHA)
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.gridheight = 1;
-        gbc.weightx = 1;
-        gbc.weighty = 0; // Mantener altura fija
-        add(panelPalabra, gbc);
+        // 📌 Panel de la palabra a adivinar (ARRIBA, OCUPA TODO EL ANCHO)
+        GridBagConstraints gbcPalabra = new GridBagConstraints();
+        gbcPalabra.fill = GridBagConstraints.BOTH;
+        gbcPalabra.gridx = 0;
+        gbcPalabra.gridy = 0;
+        gbcPalabra.gridwidth = 2; // Ocupa dos columnas
+        gbcPalabra.weightx = 1;
+        gbcPalabra.weighty = 0; // Altura fija
+        add(panelPalabra, gbcPalabra);
         ajustarTamanioFuente(lblPalabra, panelPalabra);
 
+        // 📌 Panel del gráfico del ahorcado (ABAJO IZQUIERDA)
+        GridBagConstraints gbcDibujo = new GridBagConstraints();
+        gbcDibujo.fill = GridBagConstraints.BOTH;
+        gbcDibujo.gridx = 0;
+        gbcDibujo.gridy = 1;
+        gbcDibujo.weightx = 2; // Más espacio horizontal
+        gbcDibujo.weighty = 1; // Ocupa la mayor parte de la altura restante
+        add(panelDibujo, gbcDibujo);
+
         // 📌 Panel de letras usadas (ABAJO DERECHA)
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.gridheight = 1;
-        gbc.weightx = 1;
-        gbc.weighty = 1; // Mantiene un peso más bajo para no aplastar el ahorcado
-        add(panelLetrasUsadas, gbc);
+        GridBagConstraints gbcLetras = new GridBagConstraints();
+        gbcLetras.fill = GridBagConstraints.BOTH;
+        gbcLetras.gridx = 1;
+        gbcLetras.gridy = 1;
+        gbcLetras.weightx = 1;
+        gbcLetras.weighty = 1;
+        add(panelLetrasUsadas, gbcLetras);
 
         // Acción del botón
         btnIntentar.addActionListener(new ActionListener() {
