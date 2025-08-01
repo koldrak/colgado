@@ -62,7 +62,7 @@ public class AhorcadoGrafico extends JFrame {
                 dibujarPantalla((Graphics2D) g);
             }
         };
-        panelDibujo.setBackground(new Color(30, 80, 120));
+        panelDibujo.setBackground(Color.WHITE);
 
         // 📌 2️⃣ Inicializar el panel de la palabra a adivinar
      // 📌 Panel de la palabra a adivinar (arriba derecha)
