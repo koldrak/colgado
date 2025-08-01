@@ -15,6 +15,7 @@ import java.io.File;
 import javax.swing.JFileChooser;
 
 public class AhorcadoGrafico extends JFrame {
+    private static final int ALTURA_PANEL_PALABRA = 100;
     private List<String> palabrasDisponibles = new ArrayList<>();
     private String palabraSecreta;
     private char[] palabraAdivinada;
@@ -51,8 +52,6 @@ public class AhorcadoGrafico extends JFrame {
 
         // Configurar el layout principal
         setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.BOTH;
 
         // 📌 1️⃣ Inicializar el panel del gráfico del ahorcado
         panelDibujo = new JPanel() {
@@ -69,32 +68,16 @@ public class AhorcadoGrafico extends JFrame {
         panelPalabra = new JPanel();
         panelPalabra.setBackground(new Color(20, 100, 50));
         panelPalabra.setLayout(new GridBagLayout());
-
-        // 📌 Limitar el tamaño máximo del panel (máximo 50% de la pantalla)
-        panelPalabra.setPreferredSize(new Dimension(getWidth() / 2, getHeight() / 4));
-        panelPalabra.setMaximumSize(new Dimension(getWidth() / 2, getHeight() / 4));
+        panelPalabra.setPreferredSize(new Dimension(0, ALTURA_PANEL_PALABRA));
+        panelPalabra.setMinimumSize(new Dimension(0, ALTURA_PANEL_PALABRA));
+        panelPalabra.setMaximumSize(new Dimension(Integer.MAX_VALUE, ALTURA_PANEL_PALABRA));
 
         lblPalabra = new JLabel(getPalabraAdivinada());
         lblPalabra.setForeground(Color.WHITE);
+        lblPalabra.setHorizontalAlignment(SwingConstants.CENTER);
         panelPalabra.add(lblPalabra);
 
         // 📌 Ajustar tamaño de fuente al redimensionar
-        panelPalabra.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentResized(java.awt.event.ComponentEvent evt) {
-                ajustarTamanioFuente(lblPalabra, panelPalabra);
-            }
-        });
-
-        // 📌 Agregar el panel con restricciones para que no crezca demasiado
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.gridheight = 1;
-        gbc.weightx = 1;
-        gbc.weighty = 0; // Evita que se expanda más allá de su límite
-        add(panelPalabra, gbc);
-
-
-        // Ajustar tamaño de fuente al redimensionar
         panelPalabra.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
                 ajustarTamanioFuente(lblPalabra, panelPalabra);
@@ -149,29 +132,34 @@ public class AhorcadoGrafico extends JFrame {
         panelLetrasUsadas.add(lblContadorPalabras, gbc2);
 
         // 📌 4️⃣ Agregar los paneles al GridBagLayout en el orden correcto
-        // 📌 Panel del gráfico del ahorcado (IZQUIERDA)
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridheight = 2; // Ocupa dos filas completas
-        gbc.weightx = 2; // Más espacio horizontal
-        gbc.weighty = 3; // Más espacio vertical para evitar que se aplaste
-        add(panelDibujo, gbc);
+        // 📌 Panel de la palabra a adivinar (ARRIBA, OCUPA TODO EL ANCHO)
+        GridBagConstraints gbcPalabra = new GridBagConstraints();
+        gbcPalabra.fill = GridBagConstraints.BOTH;
+        gbcPalabra.gridx = 0;
+        gbcPalabra.gridy = 0;
+        gbcPalabra.gridwidth = 2; // Ocupa dos columnas
+        gbcPalabra.weightx = 1;
+        gbcPalabra.weighty = 0; // Altura fija
+        add(panelPalabra, gbcPalabra);
+        ajustarTamanioFuente(lblPalabra, panelPalabra);
 
-        // 📌 Panel de la palabra a adivinar (ARRIBA DERECHA)
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.gridheight = 1;
-        gbc.weightx = 1;
-        gbc.weighty = 1; // Reduce su espacio vertical
-        add(panelPalabra, gbc);
+        // 📌 Panel del gráfico del ahorcado (ABAJO IZQUIERDA)
+        GridBagConstraints gbcDibujo = new GridBagConstraints();
+        gbcDibujo.fill = GridBagConstraints.BOTH;
+        gbcDibujo.gridx = 0;
+        gbcDibujo.gridy = 1;
+        gbcDibujo.weightx = 2; // Más espacio horizontal
+        gbcDibujo.weighty = 1; // Ocupa la mayor parte de la altura restante
+        add(panelDibujo, gbcDibujo);
 
         // 📌 Panel de letras usadas (ABAJO DERECHA)
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.gridheight = 1;
-        gbc.weightx = 1;
-        gbc.weighty = 1; // Mantiene un peso más bajo para no aplastar el ahorcado
-        add(panelLetrasUsadas, gbc);
+        GridBagConstraints gbcLetras = new GridBagConstraints();
+        gbcLetras.fill = GridBagConstraints.BOTH;
+        gbcLetras.gridx = 1;
+        gbcLetras.gridy = 1;
+        gbcLetras.weightx = 1;
+        gbcLetras.weighty = 1;
+        add(panelLetrasUsadas, gbcLetras);
 
         // Acción del botón
         btnIntentar.addActionListener(new ActionListener() {
@@ -189,18 +177,26 @@ public class AhorcadoGrafico extends JFrame {
     private void ajustarTamanioFuente(JLabel label, JPanel panel) {
         int panelWidth = panel.getWidth();
         int panelHeight = panel.getHeight();
-        
-        if (panelWidth == 0 || panelHeight == 0) return; // Evitar cálculos innecesarios
 
-        Font font = new Font("Arial", Font.BOLD, panelHeight / 2); // Tamaño base de la fuente
-        label.setFont(font);
+        if (panelWidth <= 0 || panelHeight <= 0) return; // Evitar cálculos innecesarios
 
+        int fontSize = panelHeight / 2;
+        Font font = new Font("Arial", Font.BOLD, fontSize);
         FontMetrics fm = panel.getFontMetrics(font);
         int textWidth = fm.stringWidth(label.getText());
 
+        // Aumentar tamaño de fuente mientras el texto sea más estrecho que el panel
+        while (textWidth < panelWidth - 20 && fontSize < panelHeight) {
+            fontSize++;
+            font = font.deriveFont((float) fontSize);
+            fm = panel.getFontMetrics(font);
+            textWidth = fm.stringWidth(label.getText());
+        }
+
         // Reducir tamaño de fuente si el texto es más ancho que el panel
-        while (textWidth > panelWidth - 20) { // 20 de margen
-            font = font.deriveFont((float) font.getSize() - 1);
+        while (textWidth > panelWidth - 20 && fontSize > 10) {
+            fontSize--;
+            font = font.deriveFont((float) fontSize);
             fm = panel.getFontMetrics(font);
             textWidth = fm.stringWidth(label.getText());
         }
@@ -242,6 +238,7 @@ public class AhorcadoGrafico extends JFrame {
         // Actualizar las etiquetas
         lblLetras.setText("Letras usadas: " + letrasIngresadas.toString());
         lblPalabra.setText(getPalabraAdivinada());
+        ajustarTamanioFuente(lblPalabra, panelPalabra);
 
         if (String.valueOf(palabraAdivinada).equals(palabraSecreta)) {
             palabrasAcertadas++;
@@ -269,6 +266,7 @@ public class AhorcadoGrafico extends JFrame {
             // Actualizar interfaz
             lblLetras.setText("Letras usadas: " + letrasIngresadas.toString());
             lblPalabra.setText(getPalabraAdivinada());
+            ajustarTamanioFuente(lblPalabra, panelPalabra);
             panelDibujo.repaint();
             return;
         }
