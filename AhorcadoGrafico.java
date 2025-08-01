@@ -15,6 +15,7 @@ import java.io.File;
 import javax.swing.JFileChooser;
 
 public class AhorcadoGrafico extends JFrame {
+    private static final int ALTURA_PANEL_PALABRA = 100;
     private List<String> palabrasDisponibles = new ArrayList<>();
     private String palabraSecreta;
     private char[] palabraAdivinada;
@@ -67,6 +68,9 @@ public class AhorcadoGrafico extends JFrame {
         panelPalabra = new JPanel();
         panelPalabra.setBackground(new Color(20, 100, 50));
         panelPalabra.setLayout(new GridBagLayout());
+        panelPalabra.setPreferredSize(new Dimension(0, ALTURA_PANEL_PALABRA));
+        panelPalabra.setMinimumSize(new Dimension(0, ALTURA_PANEL_PALABRA));
+        panelPalabra.setMaximumSize(new Dimension(Integer.MAX_VALUE, ALTURA_PANEL_PALABRA));
 
         lblPalabra = new JLabel(getPalabraAdivinada());
         lblPalabra.setForeground(Color.WHITE);
